@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>คณิตศาสตร์คอมพิวเตอร์ (21901-2005) - สไลด์การสอน โดย ครูรุ่งนภา เอี่ยมชูกุล</title>
+  <meta name="description" content="สื่อการเรียนรู้และสไลด์การนำเสนอสอน วิชาคณิตศาสตร์คอมพิวเตอร์ (21901-2005) หลักสูตร ปวช. ครูผู้สอน นางสาวรุ่งนภา เอี่ยมชูกุล">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  
+  <!-- Google Fonts: Prompt, Kanit, Fira Code -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Kanit:wght@500;600;700;800&family=Prompt:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- MathJax Configuration & Library for Crisp LaTeX Math Rendering -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)'], ['$', '$']],
+        displayMath: [['\\[', '\\]'], ['$$', '$$']]
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Floating Math Symbols & Decorative Particles in Background -->
+  <div class="math-bg-decor" id="mathBgDecor"></div>
+
+  <!-- Laser Pointer Dot Cursor -->
+  <div class="laser-pointer-dot" id="laserDot"></div>
+
+  <!-- Floating Pen Toolbar for Digital Annotation -->
+  <div class="pen-toolbar-floating" id="penToolbar">
+    <span style="font-size: 0.8rem; font-weight: 600; margin-right: 4px;">✏️ ปากกาสอน:</span>
+    <div class="pen-color-dot active" style="background: #facc15;" onclick="setPenColor('#facc15', this)" title="สีเหลืองนีออน"></div>
+    <div class="pen-color-dot" style="background: #ef4444;" onclick="setPenColor('#ef4444', this)" title="สีแดงเข้ม"></div>
+    <div class="pen-color-dot" style="background: #06b6d4;" onclick="setPenColor('#06b6d4', this)" title="สีฟ้าไซแอน"></div>
+    <div class="pen-color-dot" style="background: #10b981;" onclick="setPenColor('#10b981', this)" title="สีเขียวมรกต"></div>
+    <div class="pen-color-dot" style="background: #a855f7;" onclick="setPenColor('#a855f7', this)" title="สีม่วงสดใส"></div>
+    <button class="btn btn-sm btn-outline" onclick="clearCanvas()" style="margin-left: 6px; padding: 4px 8px; font-size: 0.75rem;">ล้างที่เขียน</button>
+  </div>
+
+  <!-- Classroom Countdown Timer Popup -->
+  <div class="timer-popup" id="timerPopup">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <strong style="color: var(--primary);">⏱️ นาฬิกาจับเวลากิจกรรม</strong>
+      <button onclick="toggleTimerPopup()" style="background:none; border:none; cursor:pointer; font-size:1.1rem; color:var(--text-sub);">✕</button>
+    </div>
+    <div class="timer-digits" id="timerDigits">05:00</div>
+    <div class="timer-presets">
+      <button class="btn-preset" onclick="setTimerPreset(60)">1 นาที</button>
+      <button class="btn-preset" onclick="setTimerPreset(180)">3 นาที</button>
+      <button class="btn-preset" onclick="setTimerPreset(300)">5 นาที</button>
+      <button class="btn-preset" onclick="setTimerPreset(600)">10 นาที</button>
+    </div>
+    <div class="timer-actions">
+      <button class="btn btn-primary" id="btnTimerStart" onclick="toggleTimerPlay()" style="flex:1;">เริ่มจับเวลา (Start)</button>
+      <button class="btn btn-outline" onclick="resetTimer()">รีเซ็ต</button>
+    </div>
+  </div>
+
+  <!-- Main Web App Shell -->
+  <div class="app-container">
+
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar">
+      <!-- Left: Course Branding -->
+      <div class="nav-brand-group">
+        <span class="brand-badge">21901-2005</span>
+        <div class="brand-title-wrap">
+          <h1 class="brand-main-title">คณิตศาสตร์คอมพิวเตอร์</h1>
+          <span class="brand-sub-title">หลักสูตรประกาศนียบัตรวิชาชีพ (ปวช.)</span>
+        </div>
+      </div>
+
+      <!-- Center: Teacher Info Chip & Unit Selector -->
+      <div class="nav-center-group">
+        <div class="teacher-nav-chip" onclick="goToSlideByUnit(0)" title="คลิกเพื่อดูข้อมูลผู้สอน">
+          <img src="assets/teacher.jpg" alt="ครูรุ่งนภา เอี่ยมชูกุล" class="nav-teacher-img">
+          <div class="nav-teacher-text">
+            <span class="nav-teacher-role">ครูผู้สอน</span>
+            <span class="nav-teacher-name">ครูรุ่งนภา เอี่ยมชูกุล</span>
+          </div>
+        </div>
+
+        <!-- Jump to Unit Dropdown -->
+        <select id="unitSelect" class="unit-select-custom" title="เลือกหน่วยการเรียนรู้"></select>
+      </div>
+
+      <!-- Right: Teacher Toolkit & Controls -->
+      <div class="nav-tools-group">
+        <button class="tool-btn" id="btnLaser" onclick="toggleLaserPointer()" title="เลเซอร์พอยเตอร์ (ปุ่ม P)">🔴</button>
+        <button class="tool-btn" id="btnPen" onclick="toggleDrawingPen()" title="ปากกาวาดหน้าจอ (ปุ่ม D)">✏️</button>
+        <button class="tool-btn" id="btnTimer" onclick="toggleTimerPopup()" title="นาฬิกาจับเวลาในห้องเรียน (ปุ่ม T)">⏱️</button>
+        <button class="tool-btn" id="btnOverview" onclick="toggleOverviewModal()" title="มุมมองภาพรวมทุกสไลด์ (ปุ่ม O)">🗂️</button>
+        <button class="tool-btn" id="btnTheme" onclick="toggleTheme()" title="สลับโหมดสว่าง/มืด">🌙</button>
+        <button class="tool-btn" id="btnSound" onclick="toggleSound()" title="เปิด/ปิดเสียงเอฟเฟกต์">🔊</button>
+        <button class="tool-btn" id="btnFullscreen" onclick="toggleFullscreen()" title="โหมดเต็มจอสอนนักเรียน (ปุ่ม F)">⛶</button>
+        <button class="tool-btn" id="btnHelp" onclick="toggleHelpModal()" title="คู่มือคีย์ลัด (ปุ่ม ?)">❓</button>
+      </div>
+    </header>
+
+    <!-- Main Slide Presentation Viewport -->
+    <main class="main-viewport">
+      <div class="slide-stage" id="slideStage">
+
+        <!-- Slide Header -->
+        <div class="slide-header">
+          <div class="slide-heading-info">
+            <div class="slide-tag-row">
+              <span class="slide-unit-badge" id="slideUnitBadge">หน่วยที่ 1: สถาปัตยกรรม</span>
+              <span class="slide-topic-tag" id="slideTopicTag">ความรู้พื้นฐาน</span>
+            </div>
+            <h2 class="slide-title" id="slideTitle">กำลังโหลดสไลด์...</h2>
+            <p class="slide-subtitle" id="slideSubtitle"></p>
+          </div>
+        </div>
+
+        <!-- Slide Body (Dynamic Content) -->
+        <div class="slide-body" id="slideBody">
+          <!-- Injected via js/app.js -->
+        </div>
+
+        <!-- Transparent Canvas Overlay for Drawing -->
+        <canvas id="drawingCanvas"></canvas>
+
+        <!-- Presenter Notes Drawer (Collapsible) -->
+        <div class="notes-drawer" id="notesDrawer">
+          <div class="notes-header">
+            <div class="notes-title">📝 บันทึกช่วยสอนสำหรับคุณครู (Presenter Notes)</div>
+            <button class="notes-close-btn" onclick="toggleNotes()">✕</button>
+          </div>
+          <div class="notes-content-text" id="notesContent"></div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Slide Bottom Controls Dock -->
+    <footer class="bottom-dock">
+      <!-- Left: Previous Slide -->
+      <div class="dock-left">
+        <button class="slide-nav-btn btn-prev" id="btnPrev" onclick="prevSlide()" title="สไลด์ก่อนหน้า (ลูกศรซ้าย)">
+          ◀ ก่อนหน้า
+        </button>
+      </div>
+
+      <!-- Center: Progress Track & Counter -->
+      <div class="dock-center">
+        <div class="progress-track">
+          <div class="progress-fill" id="progressBar"></div>
+        </div>
+        <span class="slide-counter-text" id="slideCounter">สไลด์ 1 จาก 24</span>
+      </div>
+
+      <!-- Right: Next Slide & Notes -->
+      <div class="dock-right">
+        <button class="dock-btn" onclick="toggleNotes()" title="เปิดบันทึกช่วยสอน (ปุ่ม N)">
+          📝 บันทึกครู
+        </button>
+        <button class="slide-nav-btn" id="btnNext" onclick="nextSlide()" title="สไลด์ถัดไป (ลูกศรขวา หรือ Spacebar)">
+          ถัดไป ▶
+        </button>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Slide Overview Grid Modal -->
+  <div class="overview-modal" id="overviewModal">
+    <div class="overview-dialog">
+      <div class="overview-header">
+        <h3 style="font-family: var(--font-heading); font-weight: 700;">🗂️ แผนผังภาพรวมทุกสไลด์ (Slide Overview)</h3>
+        <button class="btn btn-sm btn-outline" onclick="toggleOverviewModal()">ปิดหน้าต่าง (✕)</button>
+      </div>
+      <div class="overview-body" id="overviewBody">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Help & Shortcuts Modal -->
+  <div class="overview-modal" id="helpModal">
+    <div class="overview-dialog" style="max-width: 650px;">
+      <div class="overview-header">
+        <h3 style="font-family: var(--font-heading); font-weight: 700;">⌨️ ปุ่มลัดแป้นพิมพ์ (Keyboard Shortcuts)</h3>
+        <button class="btn btn-sm btn-outline" onclick="toggleHelpModal()">ปิด (✕)</button>
+      </div>
+      <div style="padding: 24px;">
+        <table class="styled-table">
+          <thead>
+            <tr><th>ปุ่มลัด</th><th>คำสั่ง</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>→</code> / <code>Space</code> / <code>PageDown</code></td><td>ไปยังสไลด์ถัดไป</td></tr>
+            <tr><td><code>←</code> / <code>PageUp</code></td><td>ย้อนกลับไปสไลด์ก่อนหน้า</td></tr>
+            <tr><td><code>F</code></td><td>เปิด/ปิด โหมดเต็มจอ (Fullscreen Presentation)</td></tr>
+            <tr><td><code>P</code></td><td>เปิด/ปิด ดิจิทัลเลเซอร์พอยเตอร์ (Laser Pointer)</td></tr>
+            <tr><td><code>D</code></td><td>เปิด/ปิด ปากกาวาดเขียนบนสไลด์ (Digital Pen)</td></tr>
+            <tr><td><code>T</code></td><td>เปิด/ปิด นาฬิกาจับเวลาในห้องเรียน (Classroom Timer)</td></tr>
+            <tr><td><code>O</code></td><td>เปิดภาพรวมทุกสไลด์ (Slide Overview)</td></tr>
+            <tr><td><code>N</code></td><td>เปิด/ปิด บันทึกช่วยสอนสำหรับคุณครู (Presenter Notes)</td></tr>
+            <tr><td><code>Home</code> / <code>End</code></td><td>ไปยังสไลด์แรกสุด / สไลด์สุดท้าย</td></tr>
+          </tbody>
+        </table>
+        <div class="alert-box-info mt-3" style="background: rgba(99, 102, 241, 0.08); padding: 12px; border-radius: 8px;">
+          💡 <strong>เคล็ดลับ:</strong> สำหรับการสอนในห้องบรรยาย ให้กดปุ่ม <code>F</code> เพื่อฉายสไลด์แบบเต็มจอไร้สิ่งรบกวน แล้วใช้ปุ่ม <code>P</code> ชี้เลเซอร์ หรือ <code>D</code> ขีดเขียนอธิบายเพิ่มเติมได้ทันที!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load Data and Main Script -->
+  <script src="js/slides-data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
