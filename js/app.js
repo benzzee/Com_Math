@@ -1,6 +1,7 @@
 /**
- * Application Engine for Computer Mathematics (21901-2005) Slides
+ * Application Engine for Computer Mathematics (21901-2005)
  * Teacher: Miss Rungnapha Eiamchukul (นางสาวรุ่งนภา เอี่ยมชูกุล)
+ * Course: Computer Mathematics (21901-2005) - Vocational Certificate (ปวช.)
  */
 
 // Application State
@@ -16,12 +17,9 @@ const state = {
   isTimerRunning: false,
   soundEnabled: true,
   theme: "light",
+  currentView: "portal", // "portal" or "slides"
   // Unit 1 Sim State
-  cpuStep: 0,
-  // Unit 7 Sim State
-  switchA: 0,
-  switchB: 0,
-  currentGate: "AND"
+  cpuStep: 0
 };
 
 // Web Audio API Synthesizer (Zero external audio files required!)
@@ -33,9 +31,11 @@ class SoundFX {
   init() {
     if (!this.ctx) {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      this.ctx = new AudioCtx();
+      if (AudioCtx) {
+        this.ctx = new AudioCtx();
+      }
     }
-    if (this.ctx.state === "suspended") {
+    if (this.ctx && this.ctx.state === "suspended") {
       this.ctx.resume();
     }
   }
@@ -43,52 +43,61 @@ class SoundFX {
   playClick() {
     if (!state.soundEnabled) return;
     this.init();
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(800, this.ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.05);
-    gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
-    osc.start();
-    osc.stop(this.ctx.currentTime + 0.05);
+    if (!this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(400, this.ctx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.05);
+    } catch (e) {}
   }
 
   playSuccess() {
     if (!state.soundEnabled) return;
     this.init();
-    const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
-    notes.forEach((freq, i) => {
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = "triangle";
-      osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.09);
-      gain.gain.setValueAtTime(0.2, this.ctx.currentTime + i * 0.09);
-      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.09 + 0.25);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(this.ctx.currentTime + i * 0.09);
-      osc.stop(this.ctx.currentTime + i * 0.09 + 0.25);
-    });
+    if (!this.ctx) return;
+    try {
+      const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+      notes.forEach((freq, i) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime + i * 0.09);
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime + i * 0.09);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + i * 0.09 + 0.25);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(this.ctx.currentTime + i * 0.09);
+        osc.stop(this.ctx.currentTime + i * 0.09 + 0.25);
+      });
+    } catch (e) {}
   }
 
   playAlarm() {
     if (!state.soundEnabled) return;
     this.init();
-    for (let i = 0; i < 3; i++) {
-      const osc = this.ctx.createOscillator();
-      const gain = this.ctx.createGain();
-      osc.type = "square";
-      osc.frequency.setValueAtTime(880, this.ctx.currentTime + i * 0.2);
-      gain.gain.setValueAtTime(0.15, this.ctx.currentTime + i * 0.2);
-      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + i * 0.2 + 0.12);
-      osc.connect(gain);
-      gain.connect(this.ctx.destination);
-      osc.start(this.ctx.currentTime + i * 0.2);
-      osc.stop(this.ctx.currentTime + i * 0.2 + 0.12);
-    }
+    if (!this.ctx) return;
+    try {
+      for (let i = 0; i < 2; i++) {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "square";
+        osc.frequency.setValueAtTime(880, this.ctx.currentTime + i * 0.15);
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime + i * 0.15);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + i * 0.15 + 0.1);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(this.ctx.currentTime + i * 0.15);
+        osc.stop(this.ctx.currentTime + i * 0.15 + 0.1);
+      }
+    } catch (e) {}
   }
 }
 
@@ -102,14 +111,110 @@ document.addEventListener("DOMContentLoaded", () => {
   initLaserPointer();
   initKeyboardNav();
   initTimer();
+
+  // Render initial slide in memory
   renderSlide(0);
+
+  // Check URL hash on page load
+  handleHashNavigation();
+  window.addEventListener("hashchange", handleHashNavigation);
 });
+
+// Hash navigation handler
+function handleHashNavigation() {
+  const hash = window.location.hash.toLowerCase();
+  if (hash === "#unit1" || hash === "#slide-unit1") {
+    openSlideDeck(1);
+  } else if (hash === "#orientation" || hash === "#unit0") {
+    openSlideDeck(0);
+  } else if (hash.startsWith("#slide-")) {
+    const num = parseInt(hash.replace("#slide-", ""), 10);
+    if (!isNaN(num) && num >= 1 && num <= SLIDES.length) {
+      openSlideDeckBySlideIndex(num - 1);
+    }
+  } else {
+    // Default: Show Portal
+    showPortal(false);
+  }
+}
+
+// -------------------------------------------------------------
+// Portal & Presentation View Switchers
+// -------------------------------------------------------------
+
+function showPortal(playSound = true) {
+  state.currentView = "portal";
+  const portal = document.getElementById("portalContainer");
+  const pres = document.getElementById("presentationContainer");
+  
+  if (portal) portal.style.display = "flex";
+  if (pres) pres.style.display = "none";
+  
+  // Turn off laser pointer or pen if open
+  if (state.isLaserActive) toggleLaserPointer();
+  if (state.isPenActive) toggleDrawingPen();
+  
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  if (playSound) sfx.playClick();
+}
+
+function openSlideDeck(unitId = 1) {
+  state.currentView = "slides";
+  const portal = document.getElementById("portalContainer");
+  const pres = document.getElementById("presentationContainer");
+  
+  if (portal) portal.style.display = "none";
+  if (pres) pres.style.display = "flex";
+  
+  // Jump to appropriate slide
+  goToSlideByUnit(unitId);
+  
+  // Resize canvas after container becomes visible
+  setTimeout(() => {
+    resizeCanvas();
+  }, 60);
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  sfx.playClick();
+}
+
+function openSlideDeckBySlideIndex(idx) {
+  state.currentView = "slides";
+  const portal = document.getElementById("portalContainer");
+  const pres = document.getElementById("presentationContainer");
+  
+  if (portal) portal.style.display = "none";
+  if (pres) pres.style.display = "flex";
+  
+  renderSlide(idx);
+  
+  setTimeout(() => {
+    resizeCanvas();
+  }, 60);
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  sfx.playClick();
+}
+
+let toastTimer = null;
+function showComingSoonToast(unitName) {
+  const toast = document.getElementById("toastPopup");
+  if (!toast) return;
+  toast.innerHTML = `📢 <strong>${unitName}</strong><br><span style="font-size: 0.8rem; opacity: 0.9;">อยู่ระหว่างจัดทำสื่อการสอน จะเปิดให้เรียนรู้เร็วๆ นี้ค่ะ ✨</span>`;
+  toast.style.display = "block";
+  sfx.playAlarm();
+  
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.style.display = "none";
+  }, 3500);
+}
 
 // Render Background Math Particles
 function initBackgroundParticles() {
   const container = document.getElementById("mathBgDecor");
   if (!container) return;
-  const symbols = ["π", "Σ", "∫", "√x", "01", "10", "A∪B", "p∧q", "λ", "Δ", "≈", "≠", "∞", "[M]"];
+  const symbols = ["π", "Σ", "∫", "√x", "01", "10", "A∪B", "p∧q", "λ", "Δ", "≈", "≠", "∞", "CPU", "BUS", "Hz"];
   container.innerHTML = "";
   for (let i = 0; i < 22; i++) {
     const span = document.createElement("span");
@@ -117,43 +222,56 @@ function initBackgroundParticles() {
     span.textContent = symbols[Math.floor(Math.random() * symbols.length)];
     span.style.left = `${Math.random() * 95}%`;
     span.style.top = `${Math.random() * 95}%`;
-    span.style.fontSize = `${Math.random() * 28 + 18}px`;
+    span.style.fontSize = `${Math.random() * 26 + 18}px`;
     span.style.animationDelay = `${Math.random() * 8}s`;
     span.style.animationDuration = `${Math.random() * 12 + 10}s`;
     container.appendChild(span);
   }
 }
 
-// Populate Unit Selector Dropdown
+// Populate Unit Selector Dropdown in Slide Navbar
 function initUnitDropdown() {
   const select = document.getElementById("unitSelect");
   if (!select) return;
   select.innerHTML = "";
-  COURSE_INFO.units.forEach(u => {
+
+  // 1. Orientation Option
+  const opt0 = document.createElement("option");
+  opt0.value = 0;
+  opt0.textContent = "📖 ปฐมนิเทศรายวิชา (ภาพรวมวิชา & เกณฑ์คะแนน)";
+  select.appendChild(opt0);
+
+  // 2. Ready Units (Unit 1)
+  COURSE_INFO.units.filter(u => u.isReady).forEach(u => {
     const opt = document.createElement("option");
     opt.value = u.id;
-    opt.textContent = `${u.badge}: ${u.title}`;
+    opt.textContent = `💻 ${u.unitNumber}: ${u.title}`;
     select.appendChild(opt);
   });
+
   select.addEventListener("change", (e) => {
-    goToSlideByUnit(parseInt(e.target.value));
+    goToSlideByUnit(parseInt(e.target.value, 10));
   });
 }
 
-// Slide Navigation
+// Slide Navigation & Rendering
 function renderSlide(index) {
-  if (index < 0 || index >= SLIDES.length) return;
+  if (!window.SLIDES || index < 0 || index >= SLIDES.length) return;
   state.currentSlideIndex = index;
   const slide = SLIDES[index];
 
-  // Update Navigation UI
-  document.getElementById("btnPrev").disabled = index === 0;
-  document.getElementById("btnNext").disabled = index === SLIDES.length - 1;
+  // Update Navigation UI buttons
+  const btnPrev = document.getElementById("btnPrev");
+  const btnNext = document.getElementById("btnNext");
+  if (btnPrev) btnPrev.disabled = index === 0;
+  if (btnNext) btnNext.disabled = index === SLIDES.length - 1;
 
   // Progress Bar & Counter
   const progressPercent = ((index + 1) / SLIDES.length) * 100;
-  document.getElementById("progressBar").style.width = `${progressPercent}%`;
-  document.getElementById("slideCounter").textContent = `สไลด์ ${index + 1} จาก ${SLIDES.length}`;
+  const progressBar = document.getElementById("progressBar");
+  const slideCounter = document.getElementById("slideCounter");
+  if (progressBar) progressBar.style.width = `${progressPercent}%`;
+  if (slideCounter) slideCounter.textContent = `สไลด์ ${index + 1} จาก ${SLIDES.length}`;
 
   // Update Unit Dropdown selection
   const select = document.getElementById("unitSelect");
@@ -162,43 +280,53 @@ function renderSlide(index) {
   }
 
   // Header Elements
-  document.getElementById("slideUnitBadge").textContent = slide.unitTitle || `หน่วยที่ ${slide.unitId}`;
-  document.getElementById("slideTopicTag").textContent = slide.tag || "เนื้อหาบทเรียน";
-  document.getElementById("slideTitle").innerHTML = slide.title;
-  document.getElementById("slideSubtitle").innerHTML = slide.subtitle || "";
+  const unitBadge = document.getElementById("slideUnitBadge");
+  const topicTag = document.getElementById("slideTopicTag");
+  const titleEl = document.getElementById("slideTitle");
+  const subtitleEl = document.getElementById("slideSubtitle");
+
+  if (unitBadge) unitBadge.textContent = slide.unitTitle || (slide.unitId === 0 ? "ปฐมนิเทศรายวิชา" : `หน่วยที่ ${slide.unitId}`);
+  if (topicTag) topicTag.textContent = slide.tag || "เนื้อหาบทเรียน";
+  if (titleEl) titleEl.innerHTML = slide.title;
+  if (subtitleEl) subtitleEl.innerHTML = slide.subtitle || "";
 
   // Body Content
   const bodyEl = document.getElementById("slideBody");
-  bodyEl.innerHTML = slide.content;
+  if (bodyEl) {
+    bodyEl.innerHTML = slide.content;
+  }
 
   // Presenter Notes
-  document.getElementById("notesContent").textContent = slide.notes || "ไม่มีบันทึกเพิ่มเติมสำหรับสไลด์นี้";
+  const notesEl = document.getElementById("notesContent");
+  if (notesEl) {
+    notesEl.textContent = slide.notes || "ไม่มีบันทึกเพิ่มเติมสำหรับสไลด์นี้";
+  }
 
   // Clear Canvas for new slide
   clearCanvas();
 
   // Typeset Math if MathJax is available
-  if (window.MathJax && window.MathJax.typesetPromise) {
+  if (window.MathJax && window.MathJax.typesetPromise && bodyEl) {
     MathJax.typesetPromise([bodyEl]).catch(() => {});
   }
-
-  // Trigger sound
-  sfx.playClick();
 }
 
 function nextSlide() {
   if (state.currentSlideIndex < SLIDES.length - 1) {
     renderSlide(state.currentSlideIndex + 1);
+    sfx.playClick();
   }
 }
 
 function prevSlide() {
   if (state.currentSlideIndex > 0) {
     renderSlide(state.currentSlideIndex - 1);
+    sfx.playClick();
   }
 }
 
 function goToSlideByUnit(unitId) {
+  if (!window.SLIDES) return;
   const targetIndex = SLIDES.findIndex(s => s.unitId === unitId);
   if (targetIndex !== -1) {
     renderSlide(targetIndex);
@@ -213,55 +341,81 @@ function initKeyboardNav() {
       return;
     }
 
-    switch (e.key) {
-      case "ArrowRight":
-      case "PageDown":
-      case " ":
-        e.preventDefault();
-        nextSlide();
-        break;
-      case "ArrowLeft":
-      case "PageUp":
-        e.preventDefault();
-        prevSlide();
-        break;
-      case "Home":
-        e.preventDefault();
-        renderSlide(0);
-        break;
-      case "End":
-        e.preventDefault();
-        renderSlide(SLIDES.length - 1);
-        break;
-      case "f":
-      case "F":
-        toggleFullscreen();
-        break;
-      case "p":
-      case "P":
-        toggleLaserPointer();
-        break;
-      case "d":
-      case "D":
-        toggleDrawingPen();
-        break;
-      case "t":
-      case "T":
-        toggleTimerPopup();
-        break;
-      case "n":
-      case "N":
-        toggleNotes();
-        break;
-      case "o":
-      case "O":
+    // Escape closes modals or returns to portal
+    if (e.key === "Escape") {
+      const overviewModal = document.getElementById("overviewModal");
+      const helpModal = document.getElementById("helpModal");
+      const timerPopup = document.getElementById("timerPopup");
+      if (overviewModal && overviewModal.classList.contains("open")) {
         toggleOverviewModal();
-        break;
-      case "?":
-      case "h":
-      case "H":
+        return;
+      }
+      if (helpModal && helpModal.classList.contains("open")) {
         toggleHelpModal();
-        break;
+        return;
+      }
+      if (timerPopup && timerPopup.classList.contains("open")) {
+        toggleTimerPopup();
+        return;
+      }
+      if (state.currentView === "slides") {
+        showPortal();
+        return;
+      }
+    }
+
+    // Presentation Mode Shortcuts
+    if (state.currentView === "slides") {
+      switch (e.key) {
+        case "ArrowRight":
+        case "PageDown":
+        case " ":
+          e.preventDefault();
+          nextSlide();
+          break;
+        case "ArrowLeft":
+        case "PageUp":
+          e.preventDefault();
+          prevSlide();
+          break;
+        case "Home":
+          e.preventDefault();
+          renderSlide(0);
+          break;
+        case "End":
+          e.preventDefault();
+          renderSlide(SLIDES.length - 1);
+          break;
+        case "f":
+        case "F":
+          toggleFullscreen();
+          break;
+        case "p":
+        case "P":
+          toggleLaserPointer();
+          break;
+        case "d":
+        case "D":
+          toggleDrawingPen();
+          break;
+        case "t":
+        case "T":
+          toggleTimerPopup();
+          break;
+        case "n":
+        case "N":
+          toggleNotes();
+          break;
+        case "o":
+        case "O":
+          toggleOverviewModal();
+          break;
+        case "?":
+        case "h":
+        case "H":
+          toggleHelpModal();
+          break;
+      }
     }
   });
 }
@@ -283,6 +437,7 @@ function toggleFullscreen() {
 // Laser Pointer Tool
 function initLaserPointer() {
   const dot = document.getElementById("laserDot");
+  if (!dot) return;
   window.addEventListener("mousemove", (e) => {
     if (!state.isLaserActive) return;
     dot.style.left = `${e.clientX}px`;
@@ -294,31 +449,33 @@ function toggleLaserPointer() {
   state.isLaserActive = !state.isLaserActive;
   const dot = document.getElementById("laserDot");
   const btn = document.getElementById("btnLaser");
+  if (!dot) return;
   if (state.isLaserActive) {
     dot.style.display = "block";
-    btn.classList.add("active");
-    // Turn off drawing mode if active
+    if (btn) btn.classList.add("active");
     if (state.isPenActive) toggleDrawingPen();
   } else {
     dot.style.display = "none";
-    btn.classList.remove("active");
+    if (btn) btn.classList.remove("active");
   }
 }
 
 // Digital Drawing Pen Canvas
-let ctx = null;
+let canvasCtx = null;
+
+function resizeCanvas() {
+  const canvas = document.getElementById("drawingCanvas");
+  const stage = document.getElementById("slideStage");
+  if (canvas && stage) {
+    canvas.width = stage.clientWidth;
+    canvas.height = stage.clientHeight;
+  }
+}
+
 function initDrawingCanvas() {
   const canvas = document.getElementById("drawingCanvas");
   if (!canvas) return;
-  ctx = canvas.getContext("2d");
-
-  function resizeCanvas() {
-    const stage = document.getElementById("slideStage");
-    if (stage) {
-      canvas.width = stage.clientWidth;
-      canvas.height = stage.clientHeight;
-    }
-  }
+  canvasCtx = canvas.getContext("2d");
 
   resizeCanvas();
   window.addEventListener("resize", resizeCanvas);
@@ -328,10 +485,9 @@ function initDrawingCanvas() {
   canvas.addEventListener("mouseup", stopDraw);
   canvas.addEventListener("mouseleave", stopDraw);
 
-  // Touch Support for iPads and Interactive Boards
+  // Touch Support for Interactive Screens / Tablets
   canvas.addEventListener("touchstart", (e) => {
     const touch = e.touches[0];
-    const rect = canvas.getBoundingClientRect();
     const mouseEvent = new MouseEvent("mousedown", {
       clientX: touch.clientX,
       clientY: touch.clientY
@@ -353,44 +509,50 @@ function initDrawingCanvas() {
 }
 
 function startDraw(e) {
-  if (!state.isPenActive) return;
+  if (!state.isPenActive || !canvasCtx) return;
   state.isDrawing = true;
-  ctx.beginPath();
   const rect = e.target.getBoundingClientRect();
-  ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+  canvasCtx.beginPath();
+  canvasCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+  canvasCtx.strokeStyle = state.penColor;
+  canvasCtx.lineWidth = state.penSize;
+  canvasCtx.lineCap = "round";
+  canvasCtx.lineJoin = "round";
 }
 
 function draw(e) {
-  if (!state.isPenActive || !state.isDrawing) return;
+  if (!state.isDrawing || !state.isPenActive || !canvasCtx) return;
   const rect = e.target.getBoundingClientRect();
-  ctx.strokeStyle = state.penColor;
-  ctx.lineWidth = state.penSize;
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-  ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-  ctx.stroke();
+  canvasCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+  canvasCtx.stroke();
 }
 
 function stopDraw() {
   state.isDrawing = false;
-  if (ctx) ctx.closePath();
+}
+
+function clearCanvas() {
+  const canvas = document.getElementById("drawingCanvas");
+  if (canvas && canvasCtx) {
+    canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+  }
 }
 
 function toggleDrawingPen() {
   state.isPenActive = !state.isPenActive;
-  const canvas = document.getElementById("drawingCanvas");
-  const toolbar = document.getElementById("penToolbar");
   const btn = document.getElementById("btnPen");
+  const toolbar = document.getElementById("penToolbar");
+  const canvas = document.getElementById("drawingCanvas");
 
   if (state.isPenActive) {
-    canvas.classList.add("pen-active");
-    toolbar.classList.add("show");
-    btn.classList.add("active");
+    if (btn) btn.classList.add("active");
+    if (toolbar) toolbar.style.display = "flex";
+    if (canvas) canvas.classList.add("pen-active");
     if (state.isLaserActive) toggleLaserPointer();
   } else {
-    canvas.classList.remove("pen-active");
-    toolbar.classList.remove("show");
-    btn.classList.remove("active");
+    if (btn) btn.classList.remove("active");
+    if (toolbar) toolbar.style.display = "none";
+    if (canvas) canvas.classList.remove("pen-active");
   }
 }
 
@@ -400,13 +562,6 @@ function setPenColor(color, element) {
   if (element) element.classList.add("active");
 }
 
-function clearCanvas() {
-  const canvas = document.getElementById("drawingCanvas");
-  if (canvas && ctx) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-}
-
 // Classroom Countdown Timer
 function initTimer() {
   updateTimerDisplay();
@@ -414,48 +569,70 @@ function initTimer() {
 
 function toggleTimerPopup() {
   const popup = document.getElementById("timerPopup");
-  popup.classList.toggle("open");
-}
-
-function setTimerPreset(seconds) {
-  pauseTimer();
-  state.timerSeconds = seconds;
-  updateTimerDisplay();
-}
-
-function startTimer() {
-  if (state.isTimerRunning) return;
-  state.isTimerRunning = true;
-  document.getElementById("btnTimerStart").textContent = "หยุดชั่วคราว (Pause)";
-  state.timerInterval = setInterval(() => {
-    if (state.timerSeconds > 0) {
-      state.timerSeconds--;
-      updateTimerDisplay();
-    } else {
-      pauseTimer();
-      sfx.playAlarm();
-      alert("⏰ หมดเวลาทำกิจกรรมแล้วค่ะ!");
-    }
-  }, 1000);
-}
-
-function pauseTimer() {
-  state.isTimerRunning = false;
-  if (state.timerInterval) clearInterval(state.timerInterval);
-  document.getElementById("btnTimerStart").textContent = "เริ่มจับเวลา (Start)";
+  if (popup) {
+    popup.classList.toggle("open");
+  }
 }
 
 function toggleTimerPlay() {
-  if (state.isTimerRunning) {
-    pauseTimer();
+  const btn = document.getElementById("btnTimerStart");
+  if (!state.isTimerRunning) {
+    state.isTimerRunning = true;
+    if (btn) {
+      btn.textContent = "พักเวลา (Pause)";
+      btn.classList.add("btn-accent");
+      btn.classList.remove("btn-primary");
+    }
+    state.timerInterval = setInterval(() => {
+      if (state.timerSeconds > 0) {
+        state.timerSeconds--;
+        updateTimerDisplay();
+      } else {
+        clearInterval(state.timerInterval);
+        state.isTimerRunning = false;
+        if (btn) {
+          btn.textContent = "เริ่มจับเวลา (Start)";
+          btn.classList.remove("btn-accent");
+          btn.classList.add("btn-primary");
+        }
+        sfx.playAlarm();
+        alert("⏰ หมดเวลาทำกิจกรรมแล้วค่ะ!");
+      }
+    }, 1000);
   } else {
-    startTimer();
+    clearInterval(state.timerInterval);
+    state.isTimerRunning = false;
+    if (btn) {
+      btn.textContent = "จับเวลาต่อ (Resume)";
+      btn.classList.remove("btn-accent");
+      btn.classList.add("btn-primary");
+    }
   }
 }
 
 function resetTimer() {
-  pauseTimer();
+  clearInterval(state.timerInterval);
+  state.isTimerRunning = false;
   state.timerSeconds = 300;
+  const btn = document.getElementById("btnTimerStart");
+  if (btn) {
+    btn.textContent = "เริ่มจับเวลา (Start)";
+    btn.classList.remove("btn-accent");
+    btn.classList.add("btn-primary");
+  }
+  updateTimerDisplay();
+}
+
+function setTimerPreset(seconds) {
+  clearInterval(state.timerInterval);
+  state.isTimerRunning = false;
+  state.timerSeconds = seconds;
+  const btn = document.getElementById("btnTimerStart");
+  if (btn) {
+    btn.textContent = "เริ่มจับเวลา (Start)";
+    btn.classList.remove("btn-accent");
+    btn.classList.add("btn-primary");
+  }
   updateTimerDisplay();
 }
 
@@ -463,18 +640,22 @@ function updateTimerDisplay() {
   const m = Math.floor(state.timerSeconds / 60);
   const s = state.timerSeconds % 60;
   const str = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-  document.getElementById("timerDigits").textContent = str;
+  const el = document.getElementById("timerDigits");
+  if (el) el.textContent = str;
 }
 
 // Presenter Notes Toggle
 function toggleNotes() {
   const drawer = document.getElementById("notesDrawer");
-  drawer.classList.toggle("open");
+  if (drawer) {
+    drawer.classList.toggle("open");
+  }
 }
 
 // Overview Grid Modal
 function toggleOverviewModal() {
   const modal = document.getElementById("overviewModal");
+  if (!modal) return;
   modal.classList.toggle("open");
   if (modal.classList.contains("open")) {
     renderOverviewGrid();
@@ -483,12 +664,13 @@ function toggleOverviewModal() {
 
 function renderOverviewGrid() {
   const container = document.getElementById("overviewBody");
+  if (!container || !window.SLIDES) return;
   container.innerHTML = "";
   SLIDES.forEach((slide, idx) => {
     const card = document.createElement("div");
     card.className = `slide-thumb-card ${idx === state.currentSlideIndex ? "active" : ""}`;
     card.innerHTML = `
-      <div class="thumb-num">สไลด์ที่ ${idx + 1} • หน่วย ${slide.unitId}</div>
+      <div class="thumb-num">สไลด์ที่ ${idx + 1} • ${slide.unitId === 0 ? "ปฐมนิเทศ" : "หน่วย " + slide.unitId}</div>
       <div class="thumb-title">${slide.title.replace(/<[^>]*>?/gm, "")}</div>
     `;
     card.addEventListener("click", () => {
@@ -502,29 +684,41 @@ function renderOverviewGrid() {
 // Help Modal
 function toggleHelpModal() {
   const modal = document.getElementById("helpModal");
-  modal.classList.toggle("open");
+  if (modal) {
+    modal.classList.toggle("open");
+  }
 }
 
 // Theme Switcher (Light / Dark)
 function toggleTheme() {
   state.theme = state.theme === "light" ? "dark" : "light";
   document.documentElement.setAttribute("data-theme", state.theme);
+  
+  const icon = state.theme === "light" ? "🌙" : "☀️";
   const btn = document.getElementById("btnTheme");
-  btn.textContent = state.theme === "light" ? "🌙" : "☀️";
+  if (btn) btn.textContent = icon;
+  
+  const portalIcon = document.getElementById("portalThemeIcon");
+  if (portalIcon) portalIcon.textContent = icon;
 }
 
 // Sound Toggle
 function toggleSound() {
   state.soundEnabled = !state.soundEnabled;
+  const icon = state.soundEnabled ? "🔊" : "🔇";
+  
   const btn = document.getElementById("btnSound");
-  btn.textContent = state.soundEnabled ? "🔊" : "🔇";
+  if (btn) btn.textContent = icon;
+  
+  const portalIcon = document.getElementById("portalSoundIcon");
+  if (portalIcon) portalIcon.textContent = icon;
 }
 
 // -------------------------------------------------------------
-// Interactive Slide Widgets
+// Interactive Slide Widgets (Unit 1)
 // -------------------------------------------------------------
 
-// 1. CPU Instruction Cycle Step Simulation (Unit 1)
+// 1. CPU Instruction Cycle Step Simulation (Unit 1 Slide 8)
 function simulateCpuStep() {
   const steps = [
     {
@@ -568,11 +762,18 @@ function simulateCpuStep() {
   const activeEl = document.getElementById(cur.active);
   if (activeEl) activeEl.classList.add("active-step");
 
-  document.getElementById("valPC").textContent = cur.pc;
-  document.getElementById("valMem").textContent = cur.mem;
-  document.getElementById("valIR").textContent = cur.ir;
-  document.getElementById("valALU").textContent = cur.alu;
-  document.getElementById("simStatusBanner").innerHTML = cur.msg;
+  const valPC = document.getElementById("valPC");
+  const valMem = document.getElementById("valMem");
+  const valIR = document.getElementById("valIR");
+  const valALU = document.getElementById("valALU");
+  const statusBanner = document.getElementById("simStatusBanner");
+
+  if (valPC) valPC.textContent = cur.pc;
+  if (valMem) valMem.textContent = cur.mem;
+  if (valIR) valIR.textContent = cur.ir;
+  if (valALU) valALU.textContent = cur.alu;
+  if (statusBanner) statusBanner.innerHTML = cur.msg;
+  
   sfx.playClick();
 }
 
@@ -581,196 +782,24 @@ function resetCpuSim() {
   simulateCpuStep();
 }
 
-// 2. Quick Quiz Answer Check
+// 2. Quick Quiz Answer Check (Unit 1 Slide 9)
 function checkQuizAnswer(btn, isCorrect, explanation) {
   const parent = btn.closest(".quiz-check-card");
+  if (!parent) return;
   const feedback = parent.querySelector(".quiz-feedback-box");
+  if (!feedback) return;
+  
   feedback.style.display = "block";
 
   if (isCorrect) {
-    feedback.innerHTML = `<span style="color: #10b981;">🎉 ${explanation}</span>`;
+    feedback.innerHTML = `<span style="color: #10b981; font-weight: 600;">🎉 ${explanation}</span>`;
     btn.style.background = "#10b981";
     btn.style.color = "#ffffff";
     sfx.playSuccess();
   } else {
-    feedback.innerHTML = `<span style="color: #ef4444;">❌ ลองใหม่อีกครั้งนะคะ: ${explanation}</span>`;
+    feedback.innerHTML = `<span style="color: #ef4444; font-weight: 600;">❌ ลองใหม่อีกครั้งนะคะ: ${explanation}</span>`;
     btn.style.background = "#ef4444";
     btn.style.color = "#ffffff";
-  }
-}
-
-// 3. Interactive Venn Diagram (Unit 3)
-function setVennMode(mode) {
-  const circleA = document.getElementById("vennCircleA");
-  const circleB = document.getElementById("vennCircleB");
-  const universe = document.getElementById("vennUniverse");
-  const title = document.getElementById("vennTitle");
-  const desc = document.getElementById("vennDesc");
-  const sql = document.getElementById("vennSql");
-  if (!circleA || !circleB) return;
-
-  // Reset
-  circleA.style.fill = "rgba(99, 102, 241, 0.15)";
-  circleB.style.fill = "rgba(249, 115, 22, 0.15)";
-  universe.style.fill = "rgba(148, 163, 184, 0.08)";
-
-  if (mode === "union") {
-    circleA.style.fill = "rgba(99, 102, 241, 0.7)";
-    circleB.style.fill = "rgba(249, 115, 22, 0.7)";
-    title.textContent = "การดำเนินการ: ยูเนียน (A ∪ B)";
-    desc.textContent = "นำสมาชิกทั้งหมดที่อยู่ในเซต A หรืออยู่ในเซต B หรืออยู่ทั้งคู่มารวมกัน";
-    sql.innerHTML = "เปรียบเทียบใน SQL: <code>SELECT * FROM A UNION SELECT * FROM B</code>";
-  } else if (mode === "intersect") {
-    circleA.style.fill = "rgba(99, 102, 241, 0.15)";
-    circleB.style.fill = "rgba(249, 115, 22, 0.15)";
-    title.textContent = "การดำเนินการ: อินเตอร์เซกชัน (A ∩ B)";
-    desc.textContent = "เอาเฉพาะสมาชิกที่ซ้ำกัน (อยู่ทั้งใน A และใน B พร้อมกัน)";
-    sql.innerHTML = "เปรียบเทียบใน SQL: <code>INNER JOIN (จุดร่วมที่ตรงกัน)</code>";
-  } else if (mode === "diff") {
-    circleA.style.fill = "rgba(99, 102, 241, 0.85)";
-    circleB.style.fill = "rgba(148, 163, 184, 0.1)";
-    title.textContent = "การดำเนินการ: ผลต่าง (A - B)";
-    desc.textContent = "สมาชิกที่อยู่ใน A ทั้งหมด แต่ต้องไม่เป็นสมาชิกของ B";
-    sql.innerHTML = "เปรียบเทียบใน SQL: <code>WHERE B.id IS NULL (LEFT EXCEPT)</code>";
-  } else if (mode === "comp") {
-    universe.style.fill = "rgba(245, 158, 11, 0.35)";
-    circleA.style.fill = "rgba(255, 255, 255, 0.9)";
-    title.textContent = "การดำเนินการ: คอมพลีเมนต์ (A')";
-    desc.textContent = "สมาชิกทั้งหมดที่อยู่ในเอกภพสัมพัทธ์ U แต่ไม่อยู่ในเซต A";
-    sql.innerHTML = "เปรียบเทียบใน SQL: <code>WHERE NOT IN (เซต A)</code>";
-  }
-  sfx.playClick();
-}
-
-// 4. Base Number Converter (Unit 6)
-function calculateBases(val) {
-  const num = parseInt(val, 10);
-  if (isNaN(num) || num < 0) {
-    document.getElementById("resDec").textContent = "-";
-    document.getElementById("resBin").textContent = "-";
-    document.getElementById("resOct").textContent = "-";
-    document.getElementById("resHex").textContent = "-";
-    return;
-  }
-
-  const bin = num.toString(2);
-  const oct = num.toString(8);
-  const hex = num.toString(16).toUpperCase();
-
-  document.getElementById("resDec").textContent = num;
-  document.getElementById("resBin").textContent = bin;
-  document.getElementById("resOct").textContent = oct;
-  document.getElementById("resHex").textContent = hex;
-
-  // Show steps
-  const explainer = document.getElementById("convSteps");
-  if (explainer) {
-    explainer.innerHTML = `
-      <strong>วิธีการคิดแปลง ${num} ฐานสิบเป็นฐานสอง (หารสั้นด้วย 2):</strong><br>
-      • ค่าฐานสอง: <strong>${bin}₂</strong> (กลุ่ม 4 บิต: ${bin.padStart(Math.ceil(bin.length/4)*4, '0')})<br>
-      • ค่าฐานแปด: <strong>${oct}₈</strong><br>
-      • ค่าฐานสิบหก: <strong>0x${hex}</strong>
-    `;
-  }
-}
-
-// 5. Logic Gate Live Simulator (Unit 7)
-function toggleSwitch(which) {
-  if (which === "A") {
-    state.switchA = state.switchA === 0 ? 1 : 0;
-    const btn = document.getElementById("switchA");
-    const badge = document.getElementById("badgeA");
-    badge.textContent = state.switchA ? "1 (ON)" : "0 (OFF)";
-    btn.classList.toggle("active", state.switchA === 1);
-  } else {
-    state.switchB = state.switchB === 0 ? 1 : 0;
-    const btn = document.getElementById("switchB");
-    const badge = document.getElementById("badgeB");
-    badge.textContent = state.switchB ? "1 (ON)" : "0 (OFF)";
-    btn.classList.toggle("active", state.switchB === 1);
-  }
-  updateGateSim();
-  sfx.playClick();
-}
-
-function updateGateSim() {
-  const gateSel = document.getElementById("gateSelect");
-  if (!gateSel) return;
-  state.currentGate = gateSel.value;
-
-  const iconDisplay = document.getElementById("gateIconDisplay");
-  const formulaDisplay = document.getElementById("gateFormulaDisplay");
-  const lampBox = document.getElementById("lampBox");
-  const lampStatus = document.getElementById("lampStatusText");
-
-  iconDisplay.textContent = state.currentGate;
-
-  let out = 0;
-  const a = state.switchA;
-  const b = state.switchB;
-
-  switch (state.currentGate) {
-    case "AND":
-      out = a & b;
-      formulaDisplay.textContent = "Y = A • B";
-      break;
-    case "OR":
-      out = a | b;
-      formulaDisplay.textContent = "Y = A + B";
-      break;
-    case "NOT":
-      out = a === 0 ? 1 : 0;
-      formulaDisplay.textContent = "Y = Ā (พิจารณาเฉพาะสวิตช์ A)";
-      break;
-    case "NAND":
-      out = (a & b) === 1 ? 0 : 1;
-      formulaDisplay.textContent = "Y = (A • B)̄";
-      break;
-    case "NOR":
-      out = (a | b) === 1 ? 0 : 1;
-      formulaDisplay.textContent = "Y = (A + B)̄";
-      break;
-    case "XOR":
-      out = a ^ b;
-      formulaDisplay.textContent = "Y = A ⊕ B (ต่างกันได้ 1)";
-      break;
-  }
-
-  if (out === 1) {
-    lampBox.classList.add("lit");
-    lampStatus.textContent = `เอาต์พุต Y = 1 (ไฟสว่าง 💡)`;
-  } else {
-    lampBox.classList.remove("lit");
-    lampStatus.textContent = `เอาต์พุต Y = 0 (ไฟดับ)`;
-  }
-}
-
-// 6. Celebration Trigger (Unit 8)
-function triggerCelebration() {
-  sfx.playSuccess();
-  // Confetti effect via DOM
-  const count = 60;
-  for (let i = 0; i < count; i++) {
-    const conf = document.createElement("div");
-    conf.style.position = "fixed";
-    conf.style.left = `${Math.random() * 100}vw`;
-    conf.style.top = "-20px";
-    conf.style.width = `${Math.random() * 12 + 6}px`;
-    conf.style.height = `${Math.random() * 12 + 6}px`;
-    conf.style.backgroundColor = ["#4f46e5", "#06b6d4", "#f59e0b", "#ec4899", "#10b981"][Math.floor(Math.random() * 5)];
-    conf.style.borderRadius = "50%";
-    conf.style.zIndex = "99999";
-    conf.style.pointerEvents = "none";
-    conf.style.transition = `transform ${Math.random() * 2 + 1.5}s ease-out, opacity 2s ease-out`;
-    document.body.appendChild(conf);
-
-    setTimeout(() => {
-      conf.style.transform = `translate(${Math.random() * 120 - 60}px, ${window.innerHeight + 50}px) rotate(${Math.random() * 360}deg)`;
-      conf.style.opacity = "0";
-    }, 20);
-
-    setTimeout(() => {
-      conf.remove();
-    }, 3500);
+    sfx.playAlarm();
   }
 }

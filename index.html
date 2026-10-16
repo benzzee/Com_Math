@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>คณิตศาสตร์คอมพิวเตอร์ (21901-2005) - สไลด์การสอน โดย ครูรุ่งนภา เอี่ยมชูกุล</title>
+  <title>คณิตศาสตร์คอมพิวเตอร์ (21901-2005) - ครูรุ่งนภา เอี่ยมชูกุล</title>
   <meta name="description" content="สื่อการเรียนรู้และสไลด์การนำเสนอสอน วิชาคณิตศาสตร์คอมพิวเตอร์ (21901-2005) หลักสูตร ปวช. ครูผู้สอน นางสาวรุ่งนภา เอี่ยมชูกุล">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   
@@ -28,56 +28,285 @@
 
   <!-- Main Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/portal.css">
 </head>
 <body>
 
   <!-- Floating Math Symbols & Decorative Particles in Background -->
   <div class="math-bg-decor" id="mathBgDecor"></div>
 
-  <!-- Laser Pointer Dot Cursor -->
-  <div class="laser-pointer-dot" id="laserDot"></div>
+  <!-- Toast Notification Box -->
+  <div class="toast-popup" id="toastPopup"></div>
 
-  <!-- Floating Pen Toolbar for Digital Annotation -->
-  <div class="pen-toolbar-floating" id="penToolbar">
-    <span style="font-size: 0.8rem; font-weight: 600; margin-right: 4px;">✏️ ปากกาสอน:</span>
-    <div class="pen-color-dot active" style="background: #facc15;" onclick="setPenColor('#facc15', this)" title="สีเหลืองนีออน"></div>
-    <div class="pen-color-dot" style="background: #ef4444;" onclick="setPenColor('#ef4444', this)" title="สีแดงเข้ม"></div>
-    <div class="pen-color-dot" style="background: #06b6d4;" onclick="setPenColor('#06b6d4', this)" title="สีฟ้าไซแอน"></div>
-    <div class="pen-color-dot" style="background: #10b981;" onclick="setPenColor('#10b981', this)" title="สีเขียวมรกต"></div>
-    <div class="pen-color-dot" style="background: #a855f7;" onclick="setPenColor('#a855f7', this)" title="สีม่วงสดใส"></div>
-    <button class="btn btn-sm btn-outline" onclick="clearCanvas()" style="margin-left: 6px; padding: 4px 8px; font-size: 0.75rem;">ล้างที่เขียน</button>
+  <!-- ==============================================================
+       1. DIGITAL CLASSROOM PORTAL (MATCHING REFERENCE DESIGN)
+       ============================================================== -->
+  <div class="portal-container" id="portalContainer">
+
+    <!-- Portal Top Quick Controls -->
+    <div class="portal-top-bar">
+      <button class="portal-quick-btn" onclick="toggleTheme()" title="สลับโหมดสว่าง/มืด">
+        <span id="portalThemeIcon">🌙</span> โหมดแสดงผล
+      </button>
+      <button class="portal-quick-btn" onclick="toggleSound()" title="เปิด/ปิดเสียงเอฟเฟกต์">
+        <span id="portalSoundIcon">🔊</span> เสียง
+      </button>
+      <button class="portal-quick-btn" onclick="toggleFullscreen()" title="โหมดเต็มจอ">
+        ⛶ เต็มจอ
+      </button>
+    </div>
+
+    <!-- Hero Header -->
+    <header class="portal-hero-header">
+      <div class="portal-brand-title">
+        <span class="portal-brand-icon">💻</span>
+        <span>คณิตศาสตร์คอมพิวเตอร์</span>
+      </div>
+      <p class="portal-brand-subtitle">
+        Computer Mathematics (21901-2005) • หลักสูตรประกาศนียบัตรวิชาชีพ (ปวช.)
+      </p>
+    </header>
+
+    <!-- Teacher Profile Card -->
+    <div class="teacher-profile-card">
+      <img src="assets/teacher.jpg" alt="ครูรุ่งนภา เอี่ยมชูกุล" class="portal-teacher-avatar">
+      <div class="profile-badges-row">
+        <span class="badge-role">ครูผู้สอน</span>
+        <span class="badge-status-online">
+          <span class="online-pulse-dot"></span> ออนไลน์พร้อมสอน
+        </span>
+      </div>
+      <h2 class="teacher-name">ครูรุ่งนภา เอี่ยมชูกุล</h2>
+      <div class="teacher-position">แผนกวิชาคอมพิวเตอร์ธุรกิจ / เทคโนโลยีสารสนเทศ</div>
+
+      <div class="course-meta-details">
+        <div class="meta-item">
+          <span class="meta-label">รหัสวิชา:</span>
+          <span class="meta-value">21901-2005 (ท-ป-น: 1-2-2) รวม 4 ชั่วโมง/สัปดาห์</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">เกณฑ์การวัดผล:</span>
+          <span class="meta-value">คะแนนงาน 50% • จิตพิสัย 20% • สอบปลายภาค 30%</span>
+        </div>
+      </div>
+
+      <div class="card-gradient-divider"></div>
+      <p style="font-size: 0.86rem; color: var(--text-muted); margin-top: 14px; font-style: italic;">
+        “คณิตศาสตร์ไม่ใช่แค่ตัวเลข แต่คือตรรกะและหัวใจสำคัญในการสั่งงานคอมพิวเตอร์ ✨”
+      </p>
+    </div>
+
+    <!-- Action Bar with Quick Slide Jump -->
+    <div class="portal-action-bar">
+      <button class="pill-curriculum-btn" onclick="openSlideDeck(0)">
+        <span class="red-bullet">●</span>
+        <span>สไลด์ปฐมนิเทศรายวิชา (ภาพรวมวิชา & เกณฑ์การให้คะแนน)</span>
+      </button>
+      <div style="font-size: 0.82rem; color: var(--text-sub);">
+        ภาคเรียนที่ 1 • ปีการศึกษา 2569
+      </div>
+    </div>
+
+    <!-- Section Title: หน่วยการเรียนรู้หลักสูตร (Matching Screenshot) -->
+    <div class="portal-section-wrap">
+      <h2 class="portal-section-title">
+        📁 หน่วยการเรียนรู้หลักสูตร
+      </h2>
+      <span class="portal-section-chip">
+        ทั้งหมด 8 หน่วยการเรียนรู้ • พร้อมเรียน 1 หน่วย
+      </span>
+    </div>
+
+    <!-- Grid of Unit Cards (Matching Screenshot) -->
+    <div class="unit-cards-grid" id="unitCardsGrid">
+
+      <!-- UNIT 01 (Active - From Unit1.pdf) -->
+      <div class="unit-card active-unit-card">
+        <div class="unit-card-header">
+          <span class="unit-code-badge">UNIT 01</span>
+          <span class="unit-hours-badge">4 ชั่วโมง (ทฤษฎี 2, ปฏิบัติ 2)</span>
+        </div>
+        <h3 class="unit-card-title">สถาปัตยกรรมการประมวลผลและวงรอบคำสั่ง</h3>
+        <p class="unit-card-desc">
+          ศึกษาความหมายคอมพิวเตอร์ สัญญาณนาฬิกา วิวัฒนาการ 5 ยุคของภาษา โครงสร้างระบบ วงรอบคำสั่ง (Instruction Cycle) และระบบบัส (System Bus)
+        </p>
+        <div class="unit-card-actions">
+          <button class="btn-open-slides" onclick="openSlideDeck(1)">
+            🖥️ เปิดสไลด์บทเรียน
+          </button>
+          <a href="Unit1.pdf" target="_blank" class="btn-open-pdf" title="เปิดเอกสาร Unit1.pdf">
+            📥 PDF
+          </a>
+        </div>
+      </div>
+
+      <!-- UNIT 02 -->
+      <div class="unit-card locked-unit-card">
+        <div class="unit-card-header">
+          <span class="unit-code-badge" style="color: #94a3b8;">UNIT 02</span>
+          <span class="unit-hours-badge" style="background: #f1f5f9; color: #64748b;">4 ชั่วโมง (ทฤษฎี 2, ปฏิบัติ 2)</span>
+        </div>
+        <h3 class="unit-card-title">ระบบจำนวน (Number Systems)</h3>
+        <p class="unit-card-desc">
+          ศึกษาโครงสร้างระบบจำนวน จำนวนจริง จำนวนตรรกยะ อตรรกยะ และการประยุกต์ใช้ในการประมวลผลของคอมพิวเตอร์
+        </p>
+        <div class="unit-card-actions">
+          <button class="btn-disabled-slides" onclick="showComingSoonToast('หน่วยที่ 2: ระบบจำนวน')">
+            🔒 ยังไม่มีเนื้อหา
+          </button>
+          <button class="btn-disabled-pdf" onclick="showComingSoonToast('ไฟล์ PDF หน่วยที่ 2')">
+            📄 PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- UNIT 03 -->
+      <div class="unit-card locked-unit-card">
+        <div class="unit-card-header">
+          <span class="unit-code-badge" style="color: #94a3b8;">UNIT 03</span>
+          <span class="unit-hours-badge" style="background: #f1f5f9; color: #64748b;">4 ชั่วโมง (ทฤษฎี 2, ปฏิบัติ 2)</span>
+        </div>
+        <h3 class="unit-card-title">ระบบเซต (Set Theory)</h3>
+        <p class="unit-card-desc">
+          ความหมายของเซต ยูเนียน อินเตอร์เซกชัน คอมพลีเมนต์ ผลต่าง แผนภาพเวนน์-ออยเลอร์ และการแก้โจทย์ปัญหา
+        </p>
+        <div class="unit-card-actions">
+          <button class="btn-disabled-slides" onclick="showComingSoonToast('หน่วยที่ 3: ระบบเซต')">
+            🔒 ยังไม่มีเนื้อหา
+          </button>
+          <button class="btn-disabled-pdf" onclick="showComingSoonToast('ไฟล์ PDF หน่วยที่ 3')">
+            📄 PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- UNIT 04 -->
+      <div class="unit-card locked-unit-card">
+        <div class="unit-card-header">
+          <span class="unit-code-badge" style="color: #94a3b8;">UNIT 04</span>
+          <span class="unit-hours-badge" style="background: #f1f5f9; color: #64748b;">4 ชั่วโมง (ทฤษฎี 2, ปฏิบัติ 2)</span>
+        </div>
+        <h3 class="unit-card-title">ระบบสมการเชิงเส้น (Linear Equations)</h3>
+        <p class="unit-card-desc">
+          การแก้ระบบสมการเชิงเส้นสองตัวแปรและสามตัวแปร เพื่อประยุกต์ใช้ในการเขียนโปรแกรมคำนวณ
+        </p>
+        <div class="unit-card-actions">
+          <button class="btn-disabled-slides" onclick="showComingSoonToast('หน่วยที่ 4: ระบบสมการเชิงเส้น')">
+            🔒 ยังไม่มีเนื้อหา
+          </button>
+          <button class="btn-disabled-pdf" onclick="showComingSoonToast('ไฟล์ PDF หน่วยที่ 4')">
+            📄 PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- UNIT 05 -->
+      <div class="unit-card locked-unit-card">
+        <div class="unit-card-header">
+          <span class="unit-code-badge" style="color: #94a3b8;">UNIT 05</span>
+          <span class="unit-hours-badge" style="background: #f1f5f9; color: #64748b;">4 ชั่วโมง (ทฤษฎี 2, ปฏิบัติ 2)</span>
+        </div>
+        <h3 class="unit-card-title">ตรรกศาสตร์ (Mathematical Logic)</h3>
+        <p class="unit-card-desc">
+          ประพจน์ ตัวเชื่อมทางตรรกศาสตร์ (AND, OR, NOT, IF-THEN) ตารางค่าความจริง และการสมมูล
+        </p>
+        <div class="unit-card-actions">
+          <button class="btn-disabled-slides" onclick="showComingSoonToast('หน่วยที่ 5: ตรรกศาสตร์')">
+            🔒 ยังไม่มีเนื้อหา
+          </button>
+          <button class="btn-disabled-pdf" onclick="showComingSoonToast('ไฟล์ PDF หน่วยที่ 5')">
+            📄 PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- UNIT 06 -->
+      <div class="unit-card locked-unit-card">
+        <div class="unit-card-header">
+          <span class="unit-code-badge" style="color: #94a3b8;">UNIT 06</span>
+          <span class="unit-hours-badge" style="background: #f1f5f9; color: #64748b;">4 ชั่วโมง (ทฤษฎี 2, ปฏิบัติ 2)</span>
+        </div>
+        <h3 class="unit-card-title">ระบบเลขฐาน (Base Number Systems)</h3>
+        <p class="unit-card-desc">
+          เลขฐานสอง ฐานแปด ฐานสิบ ฐานสิบหก การแปลงเลขฐาน และการคำนวณทางคณิตศาสตร์ในระบบเลขฐาน
+        </p>
+        <div class="unit-card-actions">
+          <button class="btn-disabled-slides" onclick="showComingSoonToast('หน่วยที่ 6: ระบบเลขฐาน')">
+            🔒 ยังไม่มีเนื้อหา
+          </button>
+          <button class="btn-disabled-pdf" onclick="showComingSoonToast('ไฟล์ PDF หน่วยที่ 6')">
+            📄 PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- UNIT 07 -->
+      <div class="unit-card locked-unit-card">
+        <div class="unit-card-header">
+          <span class="unit-code-badge" style="color: #94a3b8;">UNIT 07</span>
+          <span class="unit-hours-badge" style="background: #f1f5f9; color: #64748b;">4 ชั่วโมง (ทฤษฎี 2, ปฏิบัติ 2)</span>
+        </div>
+        <h3 class="unit-card-title">พีชคณิตบูลีนและลอจิกเกต (Boolean Algebra)</h3>
+        <p class="unit-card-desc">
+          ทฤษฎีบทของบูลีน วงจรดิจิทัลลอจิกเกต (AND, OR, NOT, NAND, NOR, XOR) และการลดรูปสมการบูลีน
+        </p>
+        <div class="unit-card-actions">
+          <button class="btn-disabled-slides" onclick="showComingSoonToast('หน่วยที่ 7: พีชคณิตบูลีน')">
+            🔒 ยังไม่มีเนื้อหา
+          </button>
+          <button class="btn-disabled-pdf" onclick="showComingSoonToast('ไฟล์ PDF หน่วยที่ 7')">
+            📄 PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- UNIT 08 -->
+      <div class="unit-card locked-unit-card">
+        <div class="unit-card-header">
+          <span class="unit-code-badge" style="color: #94a3b8;">UNIT 08</span>
+          <span class="unit-hours-badge" style="background: #f1f5f9; color: #64748b;">4 ชั่วโมง (ทฤษฎี 2, ปฏิบัติ 2)</span>
+        </div>
+        <h3 class="unit-card-title">เมทริกซ์และการประยุกต์ใช้งาน (Matrices)</h3>
+        <p class="unit-card-desc">
+          การดำเนินการของเมทริกซ์ การบวก คูณ ดีเทอร์มิแนนต์ อินเวอร์สเมทริกซ์ และการประยุกต์ในคอมพิวเตอร์กราฟิกส์
+        </p>
+        <div class="unit-card-actions">
+          <button class="btn-disabled-slides" onclick="showComingSoonToast('หน่วยที่ 8: เมทริกซ์')">
+            🔒 ยังไม่มีเนื้อหา
+          </button>
+          <button class="btn-disabled-pdf" onclick="showComingSoonToast('ไฟล์ PDF หน่วยที่ 8')">
+            📄 PDF
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Portal Footer -->
+    <footer class="portal-footer">
+      <p>รายวิชาคณิตศาสตร์คอมพิวเตอร์ (21901-2005) • หลักสูตรประกาศนียบัตรวิชาชีพ (ปวช.)</p>
+      <p>สื่อการเรียนการสอนพัฒนาโดย <strong>นางสาวรุ่งนภา เอี่ยมชูกุล</strong> • แผนกวิชาคอมพิวเตอร์ธุรกิจ / เทคโนโลยีสารสนเทศ</p>
+    </footer>
+
   </div>
 
-  <!-- Classroom Countdown Timer Popup -->
-  <div class="timer-popup" id="timerPopup">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <strong style="color: var(--primary);">⏱️ นาฬิกาจับเวลากิจกรรม</strong>
-      <button onclick="toggleTimerPopup()" style="background:none; border:none; cursor:pointer; font-size:1.1rem; color:var(--text-sub);">✕</button>
-    </div>
-    <div class="timer-digits" id="timerDigits">05:00</div>
-    <div class="timer-presets">
-      <button class="btn-preset" onclick="setTimerPreset(60)">1 นาที</button>
-      <button class="btn-preset" onclick="setTimerPreset(180)">3 นาที</button>
-      <button class="btn-preset" onclick="setTimerPreset(300)">5 นาที</button>
-      <button class="btn-preset" onclick="setTimerPreset(600)">10 นาที</button>
-    </div>
-    <div class="timer-actions">
-      <button class="btn btn-primary" id="btnTimerStart" onclick="toggleTimerPlay()" style="flex:1;">เริ่มจับเวลา (Start)</button>
-      <button class="btn btn-outline" onclick="resetTimer()">รีเซ็ต</button>
-    </div>
-  </div>
 
-  <!-- Main Web App Shell -->
-  <div class="app-container">
+  <!-- ==============================================================
+       2. SLIDE PRESENTATION VIEWPORT (FULL TEACHING SUITE)
+       ============================================================== -->
+  <div class="app-container" id="presentationContainer" style="display: none;">
 
     <!-- Top Navigation Bar -->
     <header class="top-navbar">
-      <!-- Left: Course Branding -->
+      <!-- Left: Back to Portal & Branding -->
       <div class="nav-brand-group">
+        <button class="btn-back-portal" onclick="showPortal()" title="กลับไปยังหน้ารวมบทเรียน">
+          🏠 หน้าหลักสูตร
+        </button>
         <span class="brand-badge">21901-2005</span>
         <div class="brand-title-wrap">
           <h1 class="brand-main-title">คณิตศาสตร์คอมพิวเตอร์</h1>
-          <span class="brand-sub-title">หลักสูตรประกาศนียบัตรวิชาชีพ (ปวช.)</span>
+          <span class="brand-sub-title">หลักสูตร ปวช.</span>
         </div>
       </div>
 
@@ -125,9 +354,7 @@
         </div>
 
         <!-- Slide Body (Dynamic Content) -->
-        <div class="slide-body" id="slideBody">
-          <!-- Injected via js/app.js -->
-        </div>
+        <div class="slide-body" id="slideBody"></div>
 
         <!-- Transparent Canvas Overlay for Drawing -->
         <canvas id="drawingCanvas"></canvas>
@@ -158,7 +385,7 @@
         <div class="progress-track">
           <div class="progress-fill" id="progressBar"></div>
         </div>
-        <span class="slide-counter-text" id="slideCounter">สไลด์ 1 จาก 24</span>
+        <span class="slide-counter-text" id="slideCounter">สไลด์ 1 จาก 13</span>
       </div>
 
       <!-- Right: Next Slide & Notes -->
@@ -174,6 +401,37 @@
 
   </div>
 
+  <!-- Interactive Slide Tools (Overlays) -->
+  <div class="laser-pointer-dot" id="laserDot"></div>
+
+  <div class="pen-toolbar-floating" id="penToolbar">
+    <span style="font-size: 0.8rem; font-weight: 600; margin-right: 4px;">✏️ ปากกาสอน:</span>
+    <div class="pen-color-dot active" style="background: #facc15;" onclick="setPenColor('#facc15', this)" title="สีเหลืองนีออน"></div>
+    <div class="pen-color-dot" style="background: #ef4444;" onclick="setPenColor('#ef4444', this)" title="สีแดงเข้ม"></div>
+    <div class="pen-color-dot" style="background: #06b6d4;" onclick="setPenColor('#06b6d4', this)" title="สีฟ้าไซแอน"></div>
+    <div class="pen-color-dot" style="background: #10b981;" onclick="setPenColor('#10b981', this)" title="สีเขียวมรกต"></div>
+    <div class="pen-color-dot" style="background: #a855f7;" onclick="setPenColor('#a855f7', this)" title="สีม่วงสดใส"></div>
+    <button class="btn btn-sm btn-outline" onclick="clearCanvas()" style="margin-left: 6px; padding: 4px 8px; font-size: 0.75rem;">ล้างที่เขียน</button>
+  </div>
+
+  <div class="timer-popup" id="timerPopup">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <strong style="color: var(--primary);">⏱️ นาฬิกาจับเวลากิจกรรม</strong>
+      <button onclick="toggleTimerPopup()" style="background:none; border:none; cursor:pointer; font-size:1.1rem; color:var(--text-sub);">✕</button>
+    </div>
+    <div class="timer-digits" id="timerDigits">05:00</div>
+    <div class="timer-presets">
+      <button class="btn-preset" onclick="setTimerPreset(60)">1 นาที</button>
+      <button class="btn-preset" onclick="setTimerPreset(180)">3 นาที</button>
+      <button class="btn-preset" onclick="setTimerPreset(300)">5 นาที</button>
+      <button class="btn-preset" onclick="setTimerPreset(600)">10 นาที</button>
+    </div>
+    <div class="timer-actions">
+      <button class="btn btn-primary" id="btnTimerStart" onclick="toggleTimerPlay()" style="flex:1;">เริ่มจับเวลา (Start)</button>
+      <button class="btn btn-outline" onclick="resetTimer()">รีเซ็ต</button>
+    </div>
+  </div>
+
   <!-- Slide Overview Grid Modal -->
   <div class="overview-modal" id="overviewModal">
     <div class="overview-dialog">
@@ -181,9 +439,7 @@
         <h3 style="font-family: var(--font-heading); font-weight: 700;">🗂️ แผนผังภาพรวมทุกสไลด์ (Slide Overview)</h3>
         <button class="btn btn-sm btn-outline" onclick="toggleOverviewModal()">ปิดหน้าต่าง (✕)</button>
       </div>
-      <div class="overview-body" id="overviewBody">
-        <!-- Rendered dynamically -->
-      </div>
+      <div class="overview-body" id="overviewBody"></div>
     </div>
   </div>
 
@@ -208,6 +464,7 @@
             <tr><td><code>T</code></td><td>เปิด/ปิด นาฬิกาจับเวลาในห้องเรียน (Classroom Timer)</td></tr>
             <tr><td><code>O</code></td><td>เปิดภาพรวมทุกสไลด์ (Slide Overview)</td></tr>
             <tr><td><code>N</code></td><td>เปิด/ปิด บันทึกช่วยสอนสำหรับคุณครู (Presenter Notes)</td></tr>
+            <tr><td><code>Esc</code></td><td>ปิดหน้าต่างป๊อปอัป / กลับหน้าหลักสูตร</td></tr>
             <tr><td><code>Home</code> / <code>End</code></td><td>ไปยังสไลด์แรกสุด / สไลด์สุดท้าย</td></tr>
           </tbody>
         </table>

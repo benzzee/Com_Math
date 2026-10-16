@@ -1,0 +1,716 @@
+/* ==========================================================================
+   DIGITAL CLASSROOM PORTAL (MATCHING REFERENCE DESIGN)
+   Curriculum Units Grid, Teacher Profile, and Portal View
+   ========================================================================== */
+
+/* Portal Main Container */
+.portal-container {
+  min-height: 100vh;
+  padding: 40px 24px 80px;
+  background-color: #f7f9fd;
+  background-image: 
+    radial-gradient(circle at 50% 120px, rgba(199, 210, 254, 0.5) 0%, rgba(247, 249, 253, 0) 65%),
+    linear-gradient(to right, rgba(99, 102, 241, 0.08) 1.2px, transparent 1.2px),
+    linear-gradient(to bottom, rgba(99, 102, 241, 0.08) 1.2px, transparent 1.2px);
+  background-size: 100% 100%, 32px 32px, 32px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+[data-theme="dark"] .portal-container {
+  background-color: #0b0f19;
+  background-image: 
+    radial-gradient(circle at 50% 120px, rgba(99, 102, 241, 0.22) 0%, rgba(11, 15, 25, 0) 65%),
+    linear-gradient(to right, rgba(99, 102, 241, 0.12) 1.2px, transparent 1.2px),
+    linear-gradient(to bottom, rgba(99, 102, 241, 0.12) 1.2px, transparent 1.2px);
+}
+
+/* Portal Floating Quick Controls (Top-right) */
+.portal-top-bar {
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.portal-quick-btn {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  color: #475569;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-family: var(--font-main, 'Prompt', sans-serif);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.portal-quick-btn:hover {
+  background: #ffffff;
+  color: var(--primary, #4f46e5);
+  border-color: #818cf8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+}
+
+[data-theme="dark"] .portal-quick-btn {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+}
+
+/* Header Section */
+.portal-hero-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.portal-brand-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-family: var(--font-heading, 'Kanit', sans-serif);
+  font-weight: 800;
+  font-size: 2.3rem;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, #4338ca 0%, #6366f1 50%, #4f46e5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.2;
+}
+
+[data-theme="dark"] .portal-brand-title {
+  background: linear-gradient(135deg, #a5b4fc 0%, #818cf8 50%, #c7d2fe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.portal-brand-icon {
+  font-size: 2.1rem;
+  -webkit-text-fill-color: initial;
+}
+
+.portal-brand-subtitle {
+  font-size: 1rem;
+  color: #64748b;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+[data-theme="dark"] .portal-brand-subtitle {
+  color: #94a3b8;
+}
+
+/* Teacher Profile Card */
+.teacher-profile-card {
+  width: 100%;
+  max-width: 620px;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 28px 32px 24px;
+  box-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  text-align: center;
+  margin-bottom: 18px;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="dark"] .teacher-profile-card {
+  background: rgba(26, 34, 52, 0.92);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.4);
+}
+
+.teacher-profile-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px -6px rgba(99, 102, 241, 0.12), 0 6px 16px -3px rgba(0, 0, 0, 0.03);
+}
+
+.portal-teacher-avatar {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #ffffff;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.22);
+  margin: 0 auto 14px;
+  display: block;
+}
+
+[data-theme="dark"] .portal-teacher-avatar {
+  border-color: #1e293b;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.profile-badges-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.badge-role {
+  background: #ede9fe;
+  color: #6366f1;
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 9999px;
+  border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+[data-theme="dark"] .badge-role {
+  background: rgba(139, 92, 246, 0.2);
+  color: #c4b5fd;
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+.badge-status-online {
+  background: #dcfce7;
+  color: #16a34a;
+  font-size: 0.76rem;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+[data-theme="dark"] .badge-status-online {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.online-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #16a34a;
+  box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7);
+  animation: pulseGreen 2s infinite;
+}
+
+[data-theme="dark"] .online-pulse-dot {
+  background: #4ade80;
+  box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+}
+
+@keyframes pulseGreen {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+}
+
+.teacher-name {
+  font-family: var(--font-heading, 'Kanit', sans-serif);
+  font-weight: 700;
+  font-size: 1.75rem;
+  color: #1e1b4b;
+  margin-bottom: 2px;
+  letter-spacing: -0.3px;
+}
+
+[data-theme="dark"] .teacher-name {
+  color: #f1f5f9;
+}
+
+.teacher-position {
+  font-size: 0.92rem;
+  color: #6366f1;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+[data-theme="dark"] .teacher-position {
+  color: #a5b4fc;
+}
+
+.course-meta-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.86rem;
+  color: #475569;
+  line-height: 1.6;
+}
+
+[data-theme="dark"] .course-meta-details {
+  color: #cbd5e1;
+}
+
+.meta-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+.meta-label {
+  font-weight: 600;
+  color: #64748b;
+}
+
+[data-theme="dark"] .meta-label {
+  color: #94a3b8;
+}
+
+.meta-value {
+  font-weight: 500;
+}
+
+.card-gradient-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 5%, rgba(244, 114, 182, 0.5) 30%, rgba(168, 85, 247, 0.5) 70%, transparent 95%);
+  margin-top: 16px;
+}
+
+/* Action Bar with Pill Button */
+.portal-action-bar {
+  width: 100%;
+  max-width: 620px;
+  background: #ffffff;
+  border-radius: 9999px;
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  margin-bottom: 34px;
+}
+
+[data-theme="dark"] .portal-action-bar {
+  background: rgba(26, 34, 52, 0.92);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.pill-curriculum-btn {
+  background: #fdf2f8;
+  color: #db2777;
+  border: 1px solid rgba(244, 114, 182, 0.4);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-main, 'Prompt', sans-serif);
+}
+
+.pill-curriculum-btn:hover {
+  background: #fce7f3;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(219, 39, 119, 0.2);
+}
+
+[data-theme="dark"] .pill-curriculum-btn {
+  background: rgba(219, 39, 119, 0.15);
+  color: #f472b6;
+  border-color: rgba(244, 114, 182, 0.3);
+}
+
+.red-bullet {
+  font-size: 0.65rem;
+  color: #ef4444;
+}
+
+/* Section Title (Matching Screenshot "📁 หน่วยการเรียนรู้หลักสูตร") */
+.portal-section-wrap {
+  width: 100%;
+  max-width: 1100px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.portal-section-title {
+  font-family: var(--font-heading, 'Kanit', sans-serif);
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+[data-theme="dark"] .portal-section-title {
+  color: #f1f5f9;
+}
+
+.portal-section-chip {
+  font-size: 0.78rem;
+  color: #64748b;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 4px 14px;
+  border-radius: 9999px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+[data-theme="dark"] .portal-section-chip {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+}
+
+/* Unit Cards Grid (3 columns on desktop, 2 on tablet, 1 on mobile) */
+.unit-cards-grid {
+  width: 100%;
+  max-width: 1100px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+@media (max-width: 980px) {
+  .unit-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .unit-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .portal-action-bar {
+    flex-direction: column;
+    gap: 12px;
+    border-radius: 20px;
+    padding: 14px 20px;
+  }
+}
+
+/* Unit Card Base */
+.unit-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 24px 22px 20px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 8px 24px -4px rgba(99, 102, 241, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .unit-card {
+  background: rgba(26, 34, 52, 0.9);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
+}
+
+/* Active Unit Card (UNIT 01) */
+.unit-card.active-unit-card {
+  border-color: rgba(99, 102, 241, 0.45);
+  box-shadow: 0 12px 30px -4px rgba(99, 102, 241, 0.12), 0 4px 12px -2px rgba(99, 102, 241, 0.06);
+}
+
+.unit-card.active-unit-card:hover {
+  transform: translateY(-4px);
+  border-color: #6366f1;
+  box-shadow: 0 18px 38px -4px rgba(99, 102, 241, 0.2), 0 6px 16px -2px rgba(99, 102, 241, 0.1);
+}
+
+/* Locked Unit Cards (UNIT 02-08) */
+.unit-card.locked-unit-card {
+  opacity: 0.95;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.unit-card.locked-unit-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px -4px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="dark"] .unit-card.locked-unit-card {
+  background: rgba(26, 34, 52, 0.7);
+}
+
+/* Card Header */
+.unit-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.unit-code-badge {
+  font-family: var(--font-heading, 'Kanit', sans-serif);
+  font-weight: 700;
+  font-size: 0.88rem;
+  letter-spacing: 0.5px;
+  color: #6366f1;
+}
+
+[data-theme="dark"] .unit-code-badge {
+  color: #818cf8;
+}
+
+.unit-hours-badge {
+  background: #ede9fe;
+  color: #6366f1;
+  font-size: 0.74rem;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+[data-theme="dark"] .unit-hours-badge {
+  background: rgba(139, 92, 246, 0.2);
+  color: #c4b5fd;
+}
+
+/* Card Title */
+.unit-card-title {
+  font-family: var(--font-heading, 'Kanit', sans-serif);
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.35;
+  margin-bottom: 8px;
+  min-height: 44px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .unit-card-title {
+  color: #f8fafc;
+}
+
+/* Card Description */
+.unit-card-desc {
+  font-size: 0.84rem;
+  color: #64748b;
+  line-height: 1.55;
+  margin-bottom: 18px;
+  min-height: 52px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+[data-theme="dark"] .unit-card-desc {
+  color: #94a3b8;
+}
+
+/* Card Actions */
+.unit-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+/* Button: เปิดสไลด์บทเรียน */
+.btn-open-slides {
+  flex: 1;
+  background: #e0e7ff;
+  color: #4338ca;
+  border: 1px solid rgba(199, 210, 254, 0.8);
+  font-family: var(--font-main, 'Prompt', sans-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-open-slides:hover {
+  background: #4f46e5;
+  color: #ffffff;
+  border-color: #4f46e5;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+}
+
+[data-theme="dark"] .btn-open-slides {
+  background: rgba(99, 102, 241, 0.2);
+  color: #c7d2fe;
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+[data-theme="dark"] .btn-open-slides:hover {
+  background: #6366f1;
+  color: #ffffff;
+}
+
+/* Button: PDF */
+.btn-open-pdf {
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  font-family: var(--font-main, 'Prompt', sans-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-open-pdf:hover {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+  transform: translateY(-1px);
+}
+
+[data-theme="dark"] .btn-open-pdf {
+  background: rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .btn-open-pdf:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+/* Locked Buttons for Unit 02-08 */
+.btn-disabled-slides {
+  flex: 1;
+  background: #f1f5f9;
+  color: #94a3b8;
+  border: 1px dashed #cbd5e1;
+  font-family: var(--font-main, 'Prompt', sans-serif);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-disabled-slides:hover {
+  background: #e2e8f0;
+  color: #64748b;
+}
+
+[data-theme="dark"] .btn-disabled-slides {
+  background: rgba(255, 255, 255, 0.04);
+  color: #64748b;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.btn-disabled-pdf {
+  background: #f8fafc;
+  color: #cbd5e1;
+  border: 1px dashed #cbd5e1;
+  font-family: var(--font-main, 'Prompt', sans-serif);
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+[data-theme="dark"] .btn-disabled-pdf {
+  background: rgba(255, 255, 255, 0.02);
+  color: #475569;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Back to Portal Button in Presentation Navbar */
+.btn-back-portal {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--primary, #4f46e5);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-family: var(--font-main, 'Prompt', sans-serif);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-back-portal:hover {
+  background: var(--primary, #4f46e5);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* Portal Footer */
+.portal-footer {
+  margin-top: 60px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+[data-theme="dark"] .portal-footer {
+  color: #94a3b8;
+}
+
+/* Toast Container */
+.toast-popup {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #1e1b4b;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  z-index: 9999;
+  display: none;
+  animation: slideUp 0.3s ease;
+  max-width: 380px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
