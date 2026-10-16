@@ -4,6 +4,27 @@
  * Course: Computer Mathematics (21901-2005) - Vocational Certificate (ปวช.)
  */
 
+// Helper accessors for resilient cross-script data retrieval
+function getSlidesList() {
+  if (typeof window !== "undefined" && window.SLIDES && Array.isArray(window.SLIDES)) {
+    return window.SLIDES;
+  }
+  if (typeof SLIDES !== "undefined" && Array.isArray(SLIDES)) {
+    return SLIDES;
+  }
+  return [];
+}
+
+function getCourseInfo() {
+  if (typeof window !== "undefined" && window.COURSE_INFO) {
+    return window.COURSE_INFO;
+  }
+  if (typeof COURSE_INFO !== "undefined") {
+    return COURSE_INFO;
+  }
+  return { units: [] };
+}
+
 // Application State
 const state = {
   currentSlideIndex: 0,
@@ -123,13 +144,14 @@ document.addEventListener("DOMContentLoaded", () => {
 // Hash navigation handler
 function handleHashNavigation() {
   const hash = window.location.hash.toLowerCase();
+  const slides = getSlidesList();
   if (hash === "#unit1" || hash === "#slide-unit1") {
     openSlideDeck(1);
   } else if (hash === "#orientation" || hash === "#unit0") {
     openSlideDeck(0);
   } else if (hash.startsWith("#slide-")) {
     const num = parseInt(hash.replace("#slide-", ""), 10);
-    if (!isNaN(num) && num >= 1 && num <= SLIDES.length) {
+    if (!isNaN(num) && num >= 1 && num <= slides.length) {
       openSlideDeckBySlideIndex(num - 1);
     }
   } else {
@@ -154,7 +176,7 @@ function showPortal(playSound = true) {
   if (state.isLaserActive) toggleLaserPointer();
   if (state.isPenActive) toggleDrawingPen();
   
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo(0, 0);
   if (playSound) sfx.playClick();
 }
 
@@ -166,15 +188,15 @@ function openSlideDeck(unitId = 1) {
   if (portal) portal.style.display = "none";
   if (pres) pres.style.display = "flex";
   
-  // Jump to appropriate slide
+  // Jump to appropriate slide immediately
   goToSlideByUnit(unitId);
   
   // Resize canvas after container becomes visible
   setTimeout(() => {
     resizeCanvas();
-  }, 60);
+  }, 30);
 
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo(0, 0);
   sfx.playClick();
 }
 
@@ -190,9 +212,9 @@ function openSlideDeckBySlideIndex(idx) {
   
   setTimeout(() => {
     resizeCanvas();
-  }, 60);
+  }, 30);
 
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo(0, 0);
   sfx.playClick();
 }
 
@@ -242,12 +264,15 @@ function initUnitDropdown() {
   select.appendChild(opt0);
 
   // 2. Ready Units (Unit 1)
-  COURSE_INFO.units.filter(u => u.isReady).forEach(u => {
-    const opt = document.createElement("option");
-    opt.value = u.id;
-    opt.textContent = `💻 ${u.unitNumber}: ${u.title}`;
-    select.appendChild(opt);
-  });
+  const info = getCourseInfo();
+  if (info && info.units) {
+    info.units.filter(u => u.isReady).forEach(u => {
+      const opt = document.createElement("option");
+      opt.value = u.id;
+      opt.textContent = `💻 ${u.unitNumber}: ${u.title}`;
+      select.appendChild(opt);
+    });
+  }
 
   select.addEventListener("change", (e) => {
     goToSlideByUnit(parseInt(e.target.value, 10));
@@ -256,22 +281,23 @@ function initUnitDropdown() {
 
 // Slide Navigation & Rendering
 function renderSlide(index) {
-  if (!window.SLIDES || index < 0 || index >= SLIDES.length) return;
+  const slides = getSlidesList();
+  if (!slides || slides.length === 0 || index < 0 || index >= slides.length) return;
   state.currentSlideIndex = index;
-  const slide = SLIDES[index];
+  const slide = slides[index];
 
   // Update Navigation UI buttons
   const btnPrev = document.getElementById("btnPrev");
   const btnNext = document.getElementById("btnNext");
   if (btnPrev) btnPrev.disabled = index === 0;
-  if (btnNext) btnNext.disabled = index === SLIDES.length - 1;
+  if (btnNext) btnNext.disabled = index === slides.length - 1;
 
   // Progress Bar & Counter
-  const progressPercent = ((index + 1) / SLIDES.length) * 100;
+  const progressPercent = ((index + 1) / slides.length) * 100;
   const progressBar = document.getElementById("progressBar");
   const slideCounter = document.getElementById("slideCounter");
   if (progressBar) progressBar.style.width = `${progressPercent}%`;
-  if (slideCounter) slideCounter.textContent = `สไลด์ ${index + 1} จาก ${SLIDES.length}`;
+  if (slideCounter) slideCounter.textContent = `สไลด์ ${index + 1} จาก ${slides.length}`;
 
   // Update Unit Dropdown selection
   const select = document.getElementById("unitSelect");
@@ -294,6 +320,7 @@ function renderSlide(index) {
   const bodyEl = document.getElementById("slideBody");
   if (bodyEl) {
     bodyEl.innerHTML = slide.content;
+    bodyEl.scrollTop = 0;
   }
 
   // Presenter Notes
@@ -304,15 +331,11 @@ function renderSlide(index) {
 
   // Clear Canvas for new slide
   clearCanvas();
-
-  // Typeset Math if MathJax is available
-  if (window.MathJax && window.MathJax.typesetPromise && bodyEl) {
-    MathJax.typesetPromise([bodyEl]).catch(() => {});
-  }
 }
 
 function nextSlide() {
-  if (state.currentSlideIndex < SLIDES.length - 1) {
+  const slides = getSlidesList();
+  if (state.currentSlideIndex < slides.length - 1) {
     renderSlide(state.currentSlideIndex + 1);
     sfx.playClick();
   }
@@ -326,8 +349,9 @@ function prevSlide() {
 }
 
 function goToSlideByUnit(unitId) {
-  if (!window.SLIDES) return;
-  const targetIndex = SLIDES.findIndex(s => s.unitId === unitId);
+  const slides = getSlidesList();
+  if (!slides || slides.length === 0) return;
+  const targetIndex = slides.findIndex(s => s.unitId === unitId);
   if (targetIndex !== -1) {
     renderSlide(targetIndex);
   }
@@ -664,9 +688,10 @@ function toggleOverviewModal() {
 
 function renderOverviewGrid() {
   const container = document.getElementById("overviewBody");
-  if (!container || !window.SLIDES) return;
+  const slides = getSlidesList();
+  if (!container || !slides || slides.length === 0) return;
   container.innerHTML = "";
-  SLIDES.forEach((slide, idx) => {
+  slides.forEach((slide, idx) => {
     const card = document.createElement("div");
     card.className = `slide-thumb-card ${idx === state.currentSlideIndex ? "active" : ""}`;
     card.innerHTML = `
@@ -802,4 +827,33 @@ function checkQuizAnswer(btn, isCorrect, explanation) {
     btn.style.color = "#ffffff";
     sfx.playAlarm();
   }
+}
+
+// Explicit global exports on window to ensure immediate access from HTML attributes
+if (typeof window !== "undefined") {
+  window.showPortal = showPortal;
+  window.openSlideDeck = openSlideDeck;
+  window.openSlideDeckBySlideIndex = openSlideDeckBySlideIndex;
+  window.showComingSoonToast = showComingSoonToast;
+  window.goToSlideByUnit = goToSlideByUnit;
+  window.renderSlide = renderSlide;
+  window.nextSlide = nextSlide;
+  window.prevSlide = prevSlide;
+  window.toggleFullscreen = toggleFullscreen;
+  window.toggleLaserPointer = toggleLaserPointer;
+  window.toggleDrawingPen = toggleDrawingPen;
+  window.clearCanvas = clearCanvas;
+  window.setPenColor = setPenColor;
+  window.toggleTimerPopup = toggleTimerPopup;
+  window.toggleTimerPlay = toggleTimerPlay;
+  window.resetTimer = resetTimer;
+  window.setTimerPreset = setTimerPreset;
+  window.toggleNotes = toggleNotes;
+  window.toggleOverviewModal = toggleOverviewModal;
+  window.toggleHelpModal = toggleHelpModal;
+  window.toggleTheme = toggleTheme;
+  window.toggleSound = toggleSound;
+  window.simulateCpuStep = simulateCpuStep;
+  window.resetCpuSim = resetCpuSim;
+  window.checkQuizAnswer = checkQuizAnswer;
 }
