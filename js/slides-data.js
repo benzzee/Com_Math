@@ -779,3 +779,9 @@ const SLIDES = [
     notes: "ถามนักเรียนว่าบัสไหนส่งสองทาง แล้วกดปุ่มทดสอบตัวเลือกเพื่อดูเฉลยพร้อมกัน"
   }
 ];
+
+// Expose globally to window for browser script access
+if (typeof window !== "undefined") {
+  window.COURSE_INFO = COURSE_INFO;
+  window.SLIDES = SLIDES;
+}

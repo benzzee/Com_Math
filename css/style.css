@@ -515,17 +515,21 @@ body {
   border-top: 2px solid var(--primary);
   padding: 16px 28px;
   position: absolute;
-  bottom: 60px;
+  bottom: 0;
   left: 0;
   width: 100%;
   box-shadow: 0 -8px 24px rgba(0,0,0,0.1);
   z-index: 85;
-  transform: translateY(110%);
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .notes-drawer.open {
   transform: translateY(0%);
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .notes-header {
